@@ -25,7 +25,7 @@ def run_cmd(cmd):
 def run_sql(cmd, use_db=True):
     return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
                   (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                   config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME))
+                   config.DB_LOCAL_PASSWORD, config.DB_NAME_TEMPORARY))
     
 def log(message, newline=True):
     if(newline):
