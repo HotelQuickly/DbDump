@@ -16,7 +16,7 @@ import config
 def run_cmd(cmd):
 #     args = shlex.split(cmd)
 #     print(args)
-#     print cmd
+    print '#',cmd
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
                          shell=True)
     (stdout, stderr) = p.communicate() 
