@@ -36,7 +36,7 @@ def run_sql_local_temporary(cmd, use_db=True):
     if(use_db):
         return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
                       (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                       config.DB_LOCAL_PASSWORD, config.DB_NAME_TEMPORARY))
+                       config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY))
     else:
         return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s" % \
                       (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
@@ -66,7 +66,7 @@ def dump(line):
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.sql') / 1000000.0) + ' MB,', False)
     run_cmd("cd %s && cat table.sql | mysql -h %s -u %s -p%s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                     config.DB_LOCAL_PASSWORD, config.DB_NAME_TEMPORARY ))
+                     config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY ))
     
 def dump_with_gz(line):
     run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --quick  %s %s | gzip > table.gz" \
@@ -76,15 +76,15 @@ def dump_with_gz(line):
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.gz') / 1000000.0) + ' MB,', False)
     run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s -p%s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                     config.DB_LOCAL_PASSWORD, config.DB_NAME_TEMPORARY ))
+                     config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY ))
 
 if __name__ == '__main__':
     print "HQLiveDump..."
     all_time_start = time.time()
-    log("drop db %s" % config.DB_NAME_TEMPORARY)
-    run_sql_local_temporary("DROP DATABASE IF EXISTS %s" % config.DB_NAME_TEMPORARY, use_db=False);
-    log("create db %s" % config.DB_NAME_TEMPORARY)
-    run_sql_local_temporary("CREATE DATABASE %s" % config.DB_NAME_TEMPORARY, use_db=False);
+    log("drop db %s" % config.DB_LOCAL_NAME_TEMPORARY)
+    run_sql_local_temporary("DROP DATABASE IF EXISTS %s" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
+    log("create db %s" % config.DB_LOCAL_NAME_TEMPORARY)
+    run_sql_local_temporary("CREATE DATABASE %s" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
     str_list_table = run_sql_remote("SHOW TABLES")['stdout']
     list_table = str.splitlines(str_list_table)
     log("listing table... got %s tables" % len(list_table))
@@ -99,6 +99,27 @@ if __name__ == '__main__':
             table_time_used = table_time_end - table_time_start
             log('done in ' + str(table_time_used) + ' s')
     
+    log('move database ' + config.DB_LOCAL_NAME_TEMPORARY + ' to ' + config.DB_LOCAL_NAME + ' ')
+    log("drop db %s" % config.DB_LOCAL_NAME)
+    run_sql_local_temporary("DROP DATABASE IF EXISTS %s" % config.DB_LOCAL_NAME, use_db=False);
+    log("create db %s" % config.DB_LOCAL_NAME)
+    run_sql_local_temporary("CREATE DATABASE %s" % config.DB_LOCAL_NAME, use_db=False);
+    for idx, line in enumerate(list_table):
+        if(line not in config.TABLE_BLACKLIST):
+            log(line + ' ', False)
+            table_time_start = time.time()
+            run_sql_local("RENAME TABLE " + config.DB_LOCAL_NAME_TEMPORARY + "." + line + " TO " + config.DB_LOCAL_NAME + "." + line, use_db=False)
+            table_time_end = time.time()
+            table_time_used = table_time_end - table_time_start
+            log('done in ' + str(table_time_used) + ' s')
+    
+    log("drop db %s" % config.DB_LOCAL_NAME_TEMPORARY)
+    run_sql_local_temporary("DROP DATABASE IF EXISTS %s" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
+    
+    ### run post dump script here
+    
+    
+    ###
     
     all_time_end = time.time()
     all_time_used = all_time_end - all_time_start
