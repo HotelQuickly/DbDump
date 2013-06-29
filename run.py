@@ -65,8 +65,8 @@ def dump(line):
                      config.DB_REMOTE_NAME, line))
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.sql') / 1000000.0) + ' MB,', False)
     run_cmd("cd %s && cat table.sql | mysql -h %s -u %s -p%s %s" % \
-            (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, config.DB_REMOTE_USER, \
-                     config.DB_REMOTE_PASSWORD, config.DB_NAME_TEMPORARY ))
+            (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
+                     config.DB_LOCAL_PASSWORD, config.DB_NAME_TEMPORARY ))
     
 def dump_with_gz(line):
     run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --quick  %s %s | gzip > table.gz" \
@@ -75,8 +75,8 @@ def dump_with_gz(line):
                      config.DB_REMOTE_NAME, line))
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.gz') / 1000000.0) + ' MB,', False)
     run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s -p%s %s" % \
-            (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, config.DB_REMOTE_USER, \
-                     config.DB_REMOTE_PASSWORD, config.DB_NAME_TEMPORARY ))
+            (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
+                     config.DB_LOCAL_PASSWORD, config.DB_NAME_TEMPORARY ))
 
 if __name__ == '__main__':
     print "HQLiveDump..."
