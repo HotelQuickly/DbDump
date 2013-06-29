@@ -77,6 +77,16 @@ def dump_with_gz(line):
     run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s -p%s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
                      config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY ))
+    
+def dump_no_data_with_gz(line):
+    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --quick --no-data  %s %s | gzip > table.gz" \
+                  % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
+                     config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
+                     config.DB_REMOTE_NAME, line))
+    log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.gz') / 1000000.0) + ' MB,', False)
+    run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s -p%s %s" % \
+            (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
+                     config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY ))
 
 if __name__ == '__main__':
     print "HQLiveDump..."
@@ -98,6 +108,14 @@ if __name__ == '__main__':
             table_time_end = time.time()
             table_time_used = table_time_end - table_time_start
             log('done in ' + str(table_time_used) + ' s')
+        else:
+            log(line + '(structure only),', False)
+            table_time_start = time.time()
+            run_cmd("cd %s && rm table.gz" % config.TMP_DIRECTORY)
+            dump_no_data_with_gz(line);
+            table_time_end = time.time()
+            table_time_used = table_time_end - table_time_start
+            log('done in ' + str(table_time_used) + ' s')
     
     log('move database ' + config.DB_LOCAL_NAME_TEMPORARY + ' to ' + config.DB_LOCAL_NAME + ' ')
     log("drop db %s" % config.DB_LOCAL_NAME)
@@ -105,13 +123,12 @@ if __name__ == '__main__':
     log("create db %s" % config.DB_LOCAL_NAME)
     run_sql_local_temporary("CREATE DATABASE %s" % config.DB_LOCAL_NAME, use_db=False);
     for idx, line in enumerate(list_table):
-        if(line not in config.TABLE_BLACKLIST):
-            log(line + ' ', False)
-            table_time_start = time.time()
-            run_sql_local("RENAME TABLE " + config.DB_LOCAL_NAME_TEMPORARY + "." + line + " TO " + config.DB_LOCAL_NAME + "." + line, use_db=False)
-            table_time_end = time.time()
-            table_time_used = table_time_end - table_time_start
-            log('done in ' + str(table_time_used) + ' s')
+        log(line + ' ', False)
+        table_time_start = time.time()
+        run_sql_local("RENAME TABLE " + config.DB_LOCAL_NAME_TEMPORARY + "." + line + " TO " + config.DB_LOCAL_NAME + "." + line, use_db=False)
+        table_time_end = time.time()
+        table_time_used = table_time_end - table_time_start
+        log('done in ' + str(table_time_used) + ' s')
     
     log("drop db %s" % config.DB_LOCAL_NAME_TEMPORARY)
     run_sql_local_temporary("DROP DATABASE IF EXISTS %s" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
