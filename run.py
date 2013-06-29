@@ -82,9 +82,9 @@ if __name__ == '__main__':
     print "HQLiveDump..."
     all_time_start = time.time()
     log("drop db %s" % config.DB_NAME_TEMPORARY)
-    run_sql_local_temporary("DROP DATABASE IF EXITS %s" % config.DB_NAME_TEMPORARY);
+    run_sql_local_temporary("DROP DATABASE IF EXITS %s" % config.DB_NAME_TEMPORARY, use_db=False);
     log("create db %s" % config.DB_NAME_TEMPORARY)
-    run_sql_local_temporary("CREATE DATABASE %s" % config.DB_NAME_TEMPORARY);
+    run_sql_local_temporary("CREATE DATABASE %s" % config.DB_NAME_TEMPORARY, use_db=False);
     str_list_table = run_sql_remote("SHOW TABLES")['stdout']
     list_table = str.splitlines(str_list_table)
     log("listing table... got %s tables" % len(list_table))
