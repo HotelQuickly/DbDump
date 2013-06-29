@@ -23,19 +23,34 @@ def run_cmd(cmd):
     return {'stdout' : stdout, 'stderr' :stderr}
 
 def run_sql_local(cmd, use_db=True):
-    return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
-                  (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                   config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME))
+    if(use_db):
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
+                      (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
+                       config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME))
+    else:
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s" % \
+                      (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
+                       config.DB_LOCAL_PASSWORD))
     
 def run_sql_local_temporary(cmd, use_db=True):
-    return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
-                  (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                   config.DB_LOCAL_PASSWORD, config.DB_NAME_TEMPORARY))
+    if(use_db):
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
+                      (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
+                       config.DB_LOCAL_PASSWORD, config.DB_NAME_TEMPORARY))
+    else:
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s" % \
+                      (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
+                       config.DB_LOCAL_PASSWORD))
     
 def run_sql_remote(cmd, use_db=True):
-    return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
-                  (cmd, config.DB_REMOTE_HOST, config.DB_REMOTE_USER, \
-                   config.DB_REMOTE_PASSWORD, config.DB_REMOTE_NAME))
+    if(use_db):
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
+                      (cmd, config.DB_REMOTE_HOST, config.DB_REMOTE_USER, \
+                       config.DB_REMOTE_PASSWORD, config.DB_REMOTE_NAME))
+    else:
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s" % \
+                      (cmd, config.DB_REMOTE_HOST, config.DB_REMOTE_USER, \
+                       config.DB_REMOTE_PASSWORD))
     
 def log(message, newline=True):
     if(newline):
