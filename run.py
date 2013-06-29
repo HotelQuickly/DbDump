@@ -22,10 +22,20 @@ def run_cmd(cmd):
     (stdout, stderr) = p.communicate() 
     return {'stdout' : stdout, 'stderr' :stderr}
 
-def run_sql(cmd, use_db=True):
+def run_sql_local(cmd, use_db=True):
+    return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
+                  (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
+                   config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME))
+    
+def run_sql_local_temporary(cmd, use_db=True):
     return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
                   (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
                    config.DB_LOCAL_PASSWORD, config.DB_NAME_TEMPORARY))
+    
+def run_sql_remote(cmd, use_db=True):
+    return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
+                  (cmd, config.DB_REMOTE_HOST, config.DB_REMOTE_USER, \
+                   config.DB_REMOTE_PASSWORD, config.DB_REMOTE_NAME))
     
 def log(message, newline=True):
     if(newline):
@@ -57,10 +67,10 @@ if __name__ == '__main__':
     print "HQLiveDump..."
     all_time_start = time.time()
     log("drop db %s" % config.DB_NAME_TEMPORARY)
-    run_sql("DROP DATABASE IF EXITS %s" % config.DB_NAME_TEMPORARY);
+    run_sql_local_temporary("DROP DATABASE IF EXITS %s" % config.DB_NAME_TEMPORARY);
     log("create db %s" % config.DB_NAME_TEMPORARY)
-    run_sql("CREATE DATABASE %s" % config.DB_NAME_TEMPORARY);
-    str_list_table = run_sql("SHOW TABLES")['stdout']
+    run_sql_local_temporary("CREATE DATABASE %s" % config.DB_NAME_TEMPORARY);
+    str_list_table = run_sql_remote("SHOW TABLES")['stdout']
     list_table = str.splitlines(str_list_table)
     log("listing table... got %s tables" % len(list_table))
     list_table.pop(0) # remove table header
