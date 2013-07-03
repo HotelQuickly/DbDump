@@ -2,3 +2,4 @@
 /.pydevproject
 /tmp
 /config.py
+*.pyc
