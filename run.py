@@ -11,6 +11,7 @@ import os
 # import shlex
 import time
 import config
+import sys
 
 
 def run_cmd(cmd):
@@ -87,8 +88,53 @@ def dump_no_data_with_gz(line):
     run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s -p%s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
                      config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY ))
+    
+def dump_one_table(table):
+    log("Dump one table: " + table)
+    str_list_table = run_sql_remote("SHOW TABLES")['stdout']
+    list_table = str.splitlines(str_list_table)
+    log(list_table)
+    if(table in list_table):
+        log('Got table in remote')
+    else:
+        log('Not found table in remote! please table name!')
+    log("create db if not exits %s" % config.DB_LOCAL_NAME_TEMPORARY)
+    run_sql_local_temporary("CREATE DATABASE IF NOT EXISTS %s" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
+    log("drop table if exits %s" % table)
+    run_sql_local_temporary("DROP TABLE IF EXISTS %s" % table);
+    log('start dump table: ' + table)
+    table_time_start = time.time()
+    run_cmd("cd %s && rm table.gz" % config.TMP_DIRECTORY)
+    dump_with_gz(table);
+    table_time_end = time.time()
+    table_time_used = table_time_end - table_time_start
+    log('done in ' + str(table_time_used) + ' s')
+    log("drop table if exits %s" % table)
+    run_sql_local("DROP TABLE IF EXISTS %s" % table);
+    log("rename table %s " % table, False)
+    table_time_start = time.time()
+    run_sql_local("RENAME TABLE " + config.DB_LOCAL_NAME_TEMPORARY + "." + table + " TO " + config.DB_LOCAL_NAME + "." + table, use_db=False)
+    table_time_end = time.time()
+    table_time_used = table_time_end - table_time_start
+    log('done in ' + str(table_time_used) + ' s')
+    log('done dump table: ' + table)
+    
 
 if __name__ == '__main__':
+    
+    argv = sys.argv
+    table = ''
+    if(len(argv) > 1):
+        if(argv[1] == '--table'):
+            if(len(argv) == 3):
+                table = argv[2]
+                dump_one_table(table)
+                exit()
+            else:
+                print 'dump only a table ex: ./run.py --table log_visit'
+        else:
+            print 'dump only a table ex: ./run.py --table log_visit'    
+    
     print "HQLiveDump..."
     all_time_start = time.time()
     log("drop db %s" % config.DB_LOCAL_NAME_TEMPORARY)
