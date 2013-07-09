@@ -20,28 +20,41 @@ def run_cmd(cmd):
 #     print '#',cmd
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
                          shell=True)
-    (stdout, stderr) = p.communicate() 
+    (stdout, stderr) = p.communicate()
+    if(len(stderr) != 0):
+        print '#', cmd
+        print stderr
+        print 'Please check the error!!!'
+        exit() 
     return {'stdout' : stdout, 'stderr' :stderr}
 
 def run_sql_local(cmd, use_db=True):
+    dblocalpassword = ''
+    if(config.DB_LOCAL_PASSWORD != ''):
+        dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
+        
     if(use_db):
-        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s %s %s" % \
                       (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                       config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME))
+                       dblocalpassword, config.DB_LOCAL_NAME))
     else:
-        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s" % \
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s %s" % \
                       (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                       config.DB_LOCAL_PASSWORD))
+                       dblocalpassword))
     
 def run_sql_local_temporary(cmd, use_db=True):
+    dblocalpassword = ''
+    if(config.DB_LOCAL_PASSWORD != ''):
+        dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
+        
     if(use_db):
-        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s %s" % \
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s %s %s" % \
                       (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                       config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY))
+                       dblocalpassword, config.DB_LOCAL_NAME_TEMPORARY))
     else:
-        return run_cmd("echo \"%s;\" | mysql -h %s -u %s -p%s" % \
+        return run_cmd("echo \"%s;\" | mysql -h %s -u %s %s" % \
                       (cmd, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                       config.DB_LOCAL_PASSWORD))
+                       dblocalpassword))
     
 def run_sql_remote(cmd, use_db=True):
     if(use_db):
@@ -60,36 +73,48 @@ def log(message, newline=True):
         print message,
         
 def dump(line):
+    dblocalpassword = ''
+    if(config.DB_LOCAL_PASSWORD != ''):
+        dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
+        
     run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --quick  %s %s > table.sql" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
                      config.DB_REMOTE_NAME, line))
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.sql') / 1000000.0) + ' MB,', False)
-    run_cmd("cd %s && cat table.sql | mysql -h %s -u %s -p%s %s" % \
+    run_cmd("cd %s && cat table.sql | mysql -h %s -u %s %s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                     config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY ))
+                     dblocalpassword, config.DB_LOCAL_NAME_TEMPORARY))
     
 def dump_with_gz(line):
+    dblocalpassword = ''
+    if(config.DB_LOCAL_PASSWORD != ''):
+        dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
+        
     run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --quick  %s %s | gzip > table.gz" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
                      config.DB_REMOTE_NAME, line))
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.gz') / 1000000.0) + ' MB,', False)
-    run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s -p%s %s" % \
+    run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s %s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                     config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY ))
+                     dblocalpassword, config.DB_LOCAL_NAME_TEMPORARY))
     
 def dump_no_data_with_gz(line):
+    dblocalpassword = ''
+    if(config.DB_LOCAL_PASSWORD != ''):
+        dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
+        
     run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --quick --no-data  %s %s | gzip > table.gz" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
                      config.DB_REMOTE_NAME, line))
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.gz') / 1000000.0) + ' MB,', False)
-    run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s -p%s %s" % \
+    run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s %s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
-                     config.DB_LOCAL_PASSWORD, config.DB_LOCAL_NAME_TEMPORARY ))
+                     dblocalpassword, config.DB_LOCAL_NAME_TEMPORARY))
     
-def dump_one_table(table):
+def dump_one_table(table):    
     log("Dump one table: " + table)
     str_list_table = run_sql_remote("SHOW TABLES")['stdout']
     list_table = str.splitlines(str_list_table)
@@ -97,7 +122,7 @@ def dump_one_table(table):
     if(table in list_table):
         log('Got table in remote')
     else:
-        log('Not found table in remote! please table name!')
+        raise RuntimeError('Not found table in remote! please check table name!')
     log("create db if not exits %s" % config.DB_LOCAL_NAME_TEMPORARY)
     run_sql_local_temporary("CREATE DATABASE IF NOT EXISTS %s" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
     log("drop table if exits %s" % table)
@@ -132,8 +157,10 @@ if __name__ == '__main__':
                 exit()
             else:
                 print 'dump only a table ex: ./run.py --table log_visit'
+                exit()
         else:
             print 'dump only a table ex: ./run.py --table log_visit'    
+            exit()
     
     print "HQLiveDump..."
     all_time_start = time.time()
@@ -144,7 +171,7 @@ if __name__ == '__main__':
     str_list_table = run_sql_remote("SHOW TABLES")['stdout']
     list_table = str.splitlines(str_list_table)
     log("listing table... got %s tables" % len(list_table))
-    list_table.pop(0) # remove table header
+    list_table.pop(0)  # remove table header
     for idx, line in enumerate(list_table):
         if(line not in config.TABLE_BLACKLIST):
             log(line + ',', False)
@@ -179,10 +206,10 @@ if __name__ == '__main__':
     log("drop db %s" % config.DB_LOCAL_NAME_TEMPORARY)
     run_sql_local_temporary("DROP DATABASE IF EXISTS %s" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
     
-    ### run post dump script here
+    # ## run post dump script here
     
     
-    ###
+    # ##
     
     all_time_end = time.time()
     all_time_used = all_time_end - all_time_start
