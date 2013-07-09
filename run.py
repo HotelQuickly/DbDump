@@ -118,7 +118,6 @@ def dump_one_table(table):
     log("Dump one table: " + table)
     str_list_table = run_sql_remote("SHOW TABLES")['stdout']
     list_table = str.splitlines(str_list_table)
-    log(list_table)
     if(table in list_table):
         log('Got table in remote')
     else:
@@ -126,7 +125,7 @@ def dump_one_table(table):
     log("create db if not exits %s" % config.DB_LOCAL_NAME_TEMPORARY)
     run_sql_local_temporary("CREATE DATABASE IF NOT EXISTS %s" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
     log("drop table if exits %s" % table)
-    run_sql_local_temporary("DROP TABLE IF EXISTS %s" % table);
+    run_sql_local_temporary("SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS %s; SET FOREIGN_KEY_CHECKS=1;" % table);
     log('start dump table: ' + table)
     table_time_start = time.time()
     run_cmd("cd %s && rm table.gz" % config.TMP_DIRECTORY)
@@ -135,7 +134,7 @@ def dump_one_table(table):
     table_time_used = table_time_end - table_time_start
     log('done in ' + str(table_time_used) + ' s')
     log("drop table if exits %s" % table)
-    run_sql_local("DROP TABLE IF EXISTS %s" % table);
+    run_sql_local("SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS %s;SET FOREIGN_KEY_CHECKS=1" % table);
     log("rename table %s " % table, False)
     table_time_start = time.time()
     run_sql_local("RENAME TABLE " + config.DB_LOCAL_NAME_TEMPORARY + "." + table + " TO " + config.DB_LOCAL_NAME + "." + table, use_db=False)
