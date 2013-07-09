@@ -27,10 +27,5 @@ Config
 Usage
 --------------
 
-  - dump every table
-
-```run.py```
-
-  - dump one table
-
-```run.py --table [tablename]```
+  - dump every table ```run.py```
+  - dump one table ```run.py --table [tablename]```
