@@ -3,3 +3,4 @@
 /tmp
 /config.py
 *.pyc
+postdump.sql
