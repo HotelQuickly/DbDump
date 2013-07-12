@@ -10,7 +10,7 @@ DB_LOCAL_PASSWORD = "password"
 
 TMP_DIRECTORY = "/home/zinuzoid/workspace/hotelquickly/HQLiveDump/tmp"
 
-TABLE_BLACKLIST = ['contact_2013-06-03', 'hotel_backup_20130624', \
+TABLE_BLACKLIST = ['email', 'contact', 'user_friend', 'wego_room_rate', 'contact_2013-06-03', 'hotel_backup_20130624', \
                    'log_offer', 'log_visit', 'room_backup_20130618', \
                    'user_friend', 'wego_room_rate_20130430', \
                    'wego_room_rate_20130528']
