@@ -197,7 +197,7 @@ if __name__ == '__main__':
     for idx, line in enumerate(list_table):
         log(line + ' ', False)
         table_time_start = time.time()
-        run_sql_local("RENAME TABLE `" + config.DB_LOCAL_NAME_TEMPORARY + "." + line + "` TO `" + config.DB_LOCAL_NAME + "." + line + '`', use_db=False)
+        run_sql_local("RENAME TABLE \`" + config.DB_LOCAL_NAME_TEMPORARY + "." + line + "\` TO \`" + config.DB_LOCAL_NAME + "." + line + '\`', use_db=False)
         table_time_end = time.time()
         table_time_used = table_time_end - table_time_start
         log('done in ' + str(table_time_used) + ' s')
