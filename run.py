@@ -212,6 +212,7 @@ if __name__ == '__main__':
         dblocalpassword = ''
         if(config.DB_LOCAL_PASSWORD != ''):
             dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
+        log('running postdump.sql...')
         run_cmd("cat postdump.sql | mysql -h %s -u %s %s %s" % \
             (config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
              dblocalpassword, config.DB_LOCAL_NAME))
