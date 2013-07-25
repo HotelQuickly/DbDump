@@ -4,3 +4,4 @@
 /config.py
 *.pyc
 postdump.sql
+.DS_Store
