@@ -77,7 +77,7 @@ def dump(line):
     if(config.DB_LOCAL_PASSWORD != ''):
         dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
         
-    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick  %s %s > table.sql" \
+    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --set-gtid-purged=OFF  %s %s > table.sql" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
                      config.DB_REMOTE_NAME, line))
@@ -91,7 +91,7 @@ def dump_with_gz(line):
     if(config.DB_LOCAL_PASSWORD != ''):
         dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
         
-    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick  %s %s | gzip > table.gz" \
+    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --set-gtid-purged=OFF  %s %s | gzip > table.gz" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
                      config.DB_REMOTE_NAME, line))
