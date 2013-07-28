@@ -13,6 +13,7 @@ import time
 import config
 import sys
 
+ismysqldumpv5_6 = False
 
 def run_cmd(cmd):
 #     args = shlex.split(cmd)
@@ -73,42 +74,54 @@ def log(message, newline=True):
         print message,
         
 def dump(line):
+    global ismysqldumpv5_6 # FIXME: refactor me
     dblocalpassword = ''
+    gtidcheck = ''
     if(config.DB_LOCAL_PASSWORD != ''):
         dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
+    if(ismysqldumpv5_6):
+        gtidcheck = '--set-gtid-purged=OFF';
         
-    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --set-gtid-purged=OFF  %s %s > table.sql" \
+    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick %s %s %s > table.sql" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
-                     config.DB_REMOTE_NAME, line))
+                     gtidcheck, config.DB_REMOTE_NAME, line))
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.sql') / 1000000.0) + ' MB,', False)
     run_cmd("cd %s && cat table.sql | mysql -h %s -u %s %s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
                      dblocalpassword, config.DB_LOCAL_NAME_TEMPORARY))
     
 def dump_with_gz(line):
+    global ismysqldumpv5_6 # FIXME: refactor me
     dblocalpassword = ''
+    gtidcheck = ''
     if(config.DB_LOCAL_PASSWORD != ''):
         dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
+    if(ismysqldumpv5_6):
+        gtidcheck = '--set-gtid-purged=OFF';
         
-    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --set-gtid-purged=OFF  %s %s | gzip > table.gz" \
+    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick %s %s %s | gzip > table.gz" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
-                     config.DB_REMOTE_NAME, line))
+                     gtidcheck, config.DB_REMOTE_NAME, line))
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.gz') / 1000000.0) + ' MB,', False)
     run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s %s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
                      dblocalpassword, config.DB_LOCAL_NAME_TEMPORARY))
     
 def dump_no_data_with_gz(line):
+    global ismysqldumpv5_6 # FIXME: refactor me
     dblocalpassword = ''
+    gtidcheck = ''
     if(config.DB_LOCAL_PASSWORD != ''):
         dblocalpassword = '-p' + config.DB_LOCAL_PASSWORD
+    if(ismysqldumpv5_6):
+        gtidcheck = '--set-gtid-purged=OFF';
         
-    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --no-data  %s %s | gzip > table.gz" \
+    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --no-data %s %s %s | gzip > table.gz" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
-                     config.DB_REMOTE_NAME, line))
+                     gtidcheck, config.DB_REMOTE_NAME, line))
     log(str(os.path.getsize(config.TMP_DIRECTORY.rstrip('/') + '/table.gz') / 1000000.0) + ' MB,', False)
     run_cmd("cd %s && zcat table.gz | mysql -h %s -u %s %s %s" % \
             (config.TMP_DIRECTORY, config.DB_LOCAL_HOST, config.DB_LOCAL_USER, \
@@ -160,6 +173,10 @@ if __name__ == '__main__':
         else:
             print 'dump only a table ex: ./run.py --table log_visit'    
             exit()
+            
+    
+    if("5.6" in run_cmd('mysqldump -V')['stdout']):
+        ismysqldumpv5_6 = True
     
     print "HQLiveDump..."
     all_time_start = time.time()
