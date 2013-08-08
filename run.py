@@ -19,10 +19,11 @@ def run_cmd(cmd):
 #     args = shlex.split(cmd)
 #     print(args)
 #     print '#',cmd
+    mysql56_password_warning = "Warning: Using a password on the command line interface can be insecure."
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, \
                          shell=True)
     (stdout, stderr) = p.communicate()
-    if(len(stderr) != 0):
+    if(mysql56_password_warning not in stderr and len(stderr) != 0):
         print '#', cmd
         print stderr
         print 'Please check the error!!!'
