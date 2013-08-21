@@ -142,7 +142,7 @@ def dump_one_table(table):
     run_sql_local_temporary("SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS %s; SET FOREIGN_KEY_CHECKS=1;" % table);
     log('start dump table: ' + table)
     table_time_start = time.time()
-    run_cmd("cd %s && rm table.gz" % config.TMP_DIRECTORY)
+    run_cmd("cd %s && rm -f table.gz" % config.TMP_DIRECTORY)
     dump_with_gz(table);
     table_time_end = time.time()
     table_time_used = table_time_end - table_time_start
@@ -193,7 +193,7 @@ if __name__ == '__main__':
         if(line not in config.TABLE_BLACKLIST):
             log(line + ',', False)
             table_time_start = time.time()
-            run_cmd("cd %s && rm table.gz" % config.TMP_DIRECTORY)
+            run_cmd("cd %s && rm -f table.gz" % config.TMP_DIRECTORY)
             dump_with_gz(line);
             table_time_end = time.time()
             table_time_used = table_time_end - table_time_start
@@ -201,7 +201,7 @@ if __name__ == '__main__':
         else:
             log(line + '(structure only),', False)
             table_time_start = time.time()
-            run_cmd("cd %s && rm table.gz" % config.TMP_DIRECTORY)
+            run_cmd("cd %s && rm -f table.gz" % config.TMP_DIRECTORY)
             dump_no_data_with_gz(line);
             table_time_end = time.time()
             table_time_used = table_time_end - table_time_start
