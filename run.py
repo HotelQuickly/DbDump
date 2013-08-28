@@ -83,7 +83,7 @@ def dump(line):
     if(ismysqldumpv5_6):
         gtidcheck = '--set-gtid-purged=OFF';
         
-    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick %s %s %s > table.sql" \
+    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --single-transaction %s %s %s > table.sql" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
                      gtidcheck, config.DB_REMOTE_NAME, line))
@@ -101,7 +101,7 @@ def dump_with_gz(line):
     if(ismysqldumpv5_6):
         gtidcheck = '--set-gtid-purged=OFF';
         
-    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick %s %s %s | gzip > table.gz" \
+    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --single-transaction %s %s %s | gzip > table.gz" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
                      gtidcheck, config.DB_REMOTE_NAME, line))
@@ -119,7 +119,7 @@ def dump_no_data_with_gz(line):
     if(ismysqldumpv5_6):
         gtidcheck = '--set-gtid-purged=OFF';
         
-    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --no-data %s %s %s | gzip > table.gz" \
+    run_cmd("cd %s && mysqldump -h %s -u %s -p%s --compress --skip-comments --skip-triggers --quick --single-transaction --no-data %s %s %s | gzip > table.gz" \
                   % (config.TMP_DIRECTORY, config.DB_REMOTE_HOST, \
                      config.DB_REMOTE_USER, config.DB_REMOTE_PASSWORD, \
                      gtidcheck, config.DB_REMOTE_NAME, line))
