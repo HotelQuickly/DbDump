@@ -12,6 +12,8 @@ import os
 import time
 import config
 import sys
+import fnmatch
+import re
 
 ismysqldumpv5_6 = False
 
@@ -157,6 +159,13 @@ def dump_one_table(table):
     log('done in ' + str(table_time_used) + ' s')
     log('done dump table: ' + table)
     
+def is_table_blacklisted(table_name):
+    for l in config.TABLE_BLACKLIST:
+        regex = fnmatch.translate(l)
+        reobj = re.compile(regex)
+        if(reobj.match(table_name) is not None):
+            return True
+    return False
 
 if __name__ == '__main__':
     
@@ -190,7 +199,7 @@ if __name__ == '__main__':
     log("listing table... got %s tables" % len(list_table))
     list_table.pop(0)  # remove table header
     for idx, line in enumerate(list_table):
-        if(line not in config.TABLE_BLACKLIST):
+        if not(is_table_blacklisted(line)):
             log(line + ',', False)
             table_time_start = time.time()
             run_cmd("cd %s && rm -f table.gz" % config.TMP_DIRECTORY)
