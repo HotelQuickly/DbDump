@@ -190,6 +190,7 @@ if __name__ == '__main__':
     
     print "HQLiveDump..."
     all_time_start = time.time()
+    run_cmd("mkdir -p %s" % config.TMP_DIRECTORY)
     log("drop db %s" % config.DB_LOCAL_NAME_TEMPORARY)
     run_sql_local_temporary("SET FOREIGN_KEY_CHECKS = 0;DROP DATABASE IF EXISTS %s;SET FOREIGN_KEY_CHECKS = 1;" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
     log("create db %s" % config.DB_LOCAL_NAME_TEMPORARY)
