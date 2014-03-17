@@ -222,13 +222,17 @@ if __name__ == '__main__':
     run_sql_local_temporary("SET FOREIGN_KEY_CHECKS = 0;DROP DATABASE IF EXISTS %s;SET FOREIGN_KEY_CHECKS = 1;" % config.DB_LOCAL_NAME, use_db=False);
     log("create db %s" % config.DB_LOCAL_NAME)
     run_sql_local_temporary("CREATE DATABASE %s" % config.DB_LOCAL_NAME, use_db=False);
+        
+    rename_sql = "RENAME TABLE"
     for idx, line in enumerate(list_table):
-        log(line + ' ', False)
-        table_time_start = time.time()
-        run_sql_local("RENAME TABLE \`" + config.DB_LOCAL_NAME_TEMPORARY + "\`.\`" + line + "\` TO \`" + config.DB_LOCAL_NAME + "\`.\`" + line + '\`', use_db=False)
-        table_time_end = time.time()
-        table_time_used = table_time_end - table_time_start
-        log('done in ' + str(table_time_used) + ' s')
+        rename_sql += " \`" + config.DB_LOCAL_NAME_TEMPORARY + "\`.\`" + line + "\` TO \`" + config.DB_LOCAL_NAME + "\`.\`" + line + "\`,"
+    rename_sql = rename_sql[:-1]
+    log(rename_sql)
+    table_time_start = time.time()
+    run_sql_local(rename_sql, use_db=False)
+    table_time_end = time.time()
+    table_time_used = table_time_end - table_time_start
+    log('done in ' + str(table_time_used) + ' s')
     
     log("drop db %s" % config.DB_LOCAL_NAME_TEMPORARY)
     run_sql_local_temporary("SET FOREIGN_KEY_CHECKS = 0;DROP DATABASE IF EXISTS %s;SET FOREIGN_KEY_CHECKS = 1;" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
