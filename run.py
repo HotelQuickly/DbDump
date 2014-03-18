@@ -217,21 +217,21 @@ if __name__ == '__main__':
             table_time_used = table_time_end - table_time_start
             log('done in ' + str(table_time_used) + ' s')
      
-    log('move database ' + config.DB_LOCAL_NAME_TEMPORARY + ' to ' + config.DB_LOCAL_NAME + ' ')
-    log("drop db %s" % config.DB_LOCAL_NAME)
-    run_sql_local_temporary("SET FOREIGN_KEY_CHECKS = 0;DROP DATABASE IF EXISTS %s;SET FOREIGN_KEY_CHECKS = 1;" % config.DB_LOCAL_NAME, use_db=False);
-    log("create db %s" % config.DB_LOCAL_NAME)
-    run_sql_local_temporary("CREATE DATABASE %s" % config.DB_LOCAL_NAME, use_db=False);
-    for idx, line in enumerate(list_table):
-        log(line + ' ', False)
-        table_time_start = time.time()
-        run_sql_local("RENAME TABLE \`" + config.DB_LOCAL_NAME_TEMPORARY + "\`.\`" + line + "\` TO \`" + config.DB_LOCAL_NAME + "\`.\`" + line + '\`', use_db=False)
-        table_time_end = time.time()
-        table_time_used = table_time_end - table_time_start
-        log('done in ' + str(table_time_used) + ' s')
-    
-    log("drop db %s" % config.DB_LOCAL_NAME_TEMPORARY)
-    run_sql_local_temporary("SET FOREIGN_KEY_CHECKS = 0;DROP DATABASE IF EXISTS %s;SET FOREIGN_KEY_CHECKS = 1;" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
+#     log('move database ' + config.DB_LOCAL_NAME_TEMPORARY + ' to ' + config.DB_LOCAL_NAME + ' ')
+#     log("drop db %s" % config.DB_LOCAL_NAME)
+#     run_sql_local_temporary("SET FOREIGN_KEY_CHECKS = 0;DROP DATABASE IF EXISTS %s;SET FOREIGN_KEY_CHECKS = 1;" % config.DB_LOCAL_NAME, use_db=False);
+#     log("create db %s" % config.DB_LOCAL_NAME)
+#     run_sql_local_temporary("CREATE DATABASE %s" % config.DB_LOCAL_NAME, use_db=False);
+#     for idx, line in enumerate(list_table):
+#         log(line + ' ', False)
+#         table_time_start = time.time()
+#         run_sql_local("RENAME TABLE \`" + config.DB_LOCAL_NAME_TEMPORARY + "\`.\`" + line + "\` TO \`" + config.DB_LOCAL_NAME + "\`.\`" + line + '\`', use_db=False)
+#         table_time_end = time.time()
+#         table_time_used = table_time_end - table_time_start
+#         log('done in ' + str(table_time_used) + ' s')
+#     
+#     log("drop db %s" % config.DB_LOCAL_NAME_TEMPORARY)
+#     run_sql_local_temporary("SET FOREIGN_KEY_CHECKS = 0;DROP DATABASE IF EXISTS %s;SET FOREIGN_KEY_CHECKS = 1;" % config.DB_LOCAL_NAME_TEMPORARY, use_db=False);
     
     # ## run post dump script here
     
